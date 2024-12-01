@@ -14,7 +14,6 @@ namespace GoToTabExtension
 {
     internal sealed class GoToTabCommand
     {
-        private readonly AsyncPackage package;
         private static DTE2 _dte;
 
         public const int CommandId = 0x0100;
@@ -22,9 +21,11 @@ namespace GoToTabExtension
 
         private GoToTabCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
-            this.package = package ?? throw new ArgumentNullException(nameof(package));
+            if (package is null) 
+                throw new ArgumentNullException(nameof(package));
 
-            commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
+            if (commandService is null) 
+                throw new ArgumentNullException(nameof(commandService));
 
             CommandID menuCommandId = new CommandID(CommandSet, CommandId);
             MenuCommand menuItem = new MenuCommand(Execute, menuCommandId);
@@ -67,7 +68,7 @@ namespace GoToTabExtension
             ThreadHelper.ThrowIfNotOnUIThread();
             System.Windows.Window dialog = new System.Windows.Window
             {
-                Title = "Recent Files",
+                Title = "Active Tabs",
                 Width = 700,
                 Height = 600,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
@@ -100,10 +101,9 @@ namespace GoToTabExtension
                 Height = 500,
             };
 
-            // Create a mapping of file names, full paths, and project names
             var fileDisplayData = recentFiles.Select(filePath =>
             {
-                string projectName = GetProjectNameForFile(filePath); // Method to determine the project name
+                string projectName = GetProjectNameForFile(filePath); 
                 return new
                 {
                     FileName = System.IO.Path.GetFileName(filePath),
@@ -141,7 +141,6 @@ namespace GoToTabExtension
                     ThreadHelper.ThrowIfNotOnUIThread();
                     if (listBox.SelectedItem is string selectedDisplayText)
                     {
-                        // Find the corresponding file from the display text
                         var selectedFile = fileDisplayData.FirstOrDefault(item =>
                             $"{item.FileName} ({item.ProjectName})" == selectedDisplayText);
 
