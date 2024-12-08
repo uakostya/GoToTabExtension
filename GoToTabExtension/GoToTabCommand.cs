@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -165,40 +166,17 @@ namespace GoToTabExtension
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            foreach (Project project in _dte.Solution.Projects)
+            string solutionDir = System.IO.Path.GetDirectoryName(_dte.Solution.FullName);
+
+            if (!solutionDir.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()))
             {
-                if (project.ProjectItems != null)
-                {
-                    if (FindFileInProject(project.ProjectItems, filePath))
-                    {
-                        return project.Name;
-                    }
-                }
+                solutionDir += System.IO.Path.DirectorySeparatorChar;
             }
 
-            return "Unknown Project";
-        }
+            string relativePath = filePath.Replace(solutionDir, string.Empty);
 
-        private bool FindFileInProject(ProjectItems items, string filePath)
-        {
-            foreach (ProjectItem item in items)
-            {
-                if (item.FileCount > 0)
-                {
-                    string itemFilePath = item.FileNames[1];
-                    if (string.Equals(itemFilePath, filePath, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
-                }
-
-                if (item.ProjectItems != null && FindFileInProject(item.ProjectItems, filePath))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            string[] pathParts = relativePath.Split(System.IO.Path.DirectorySeparatorChar);
+            return pathParts.Length > 0 ? pathParts[0] : string.Empty;
         }
     }
 }
