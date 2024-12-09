@@ -103,7 +103,7 @@ namespace GoToTabExtension
 
             var fileDisplayData = recentFiles.Select(filePath =>
             {
-                string projectName = GetProjectNameForFile(filePath); 
+                string projectName = GetRelativeDirectoryPath(filePath); 
                 return new
                 {
                     FileName = System.IO.Path.GetFileName(filePath),
@@ -161,7 +161,7 @@ namespace GoToTabExtension
             return stackPanel;
         }
 
-        private string GetProjectNameForFile(string filePath)
+        private string GetRelativeDirectoryPath(string filePath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -172,10 +172,11 @@ namespace GoToTabExtension
                 solutionDir += System.IO.Path.DirectorySeparatorChar;
             }
 
-            string relativePath = filePath.Replace(solutionDir, string.Empty);
+            string fileDir = System.IO.Path.GetDirectoryName(filePath);
 
-            string[] pathParts = relativePath.Split(System.IO.Path.DirectorySeparatorChar);
-            return pathParts.Length > 0 ? pathParts[0] : string.Empty;
+            string relativePath = fileDir.Replace(solutionDir, string.Empty);
+
+            return relativePath;
         }
     }
 }
