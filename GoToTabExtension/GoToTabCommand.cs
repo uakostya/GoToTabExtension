@@ -19,6 +19,8 @@ namespace GoToTabExtension
         public const int CommandId = 0x0100;
         public static readonly Guid CommandSet = new Guid("33022384-3a67-4fad-8541-f180369113dc");
 
+        private Dictionary<string, DateTime> _docOpenTimes = new Dictionary<string, DateTime>();
+
         private GoToTabCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
             if (package is null) 
@@ -30,6 +32,7 @@ namespace GoToTabExtension
             CommandID menuCommandId = new CommandID(CommandSet, CommandId);
             MenuCommand menuItem = new MenuCommand(Execute, menuCommandId);
             commandService.AddCommand(menuItem);
+            TrackWindowEvents();
         }
 
         public static async Task InitializeAsync(AsyncPackage package)
@@ -50,17 +53,35 @@ namespace GoToTabExtension
             ShowRecentFilesDropdown(recentFiles);
         }
 
+        private void TrackWindowEvents()
+        {
+            _dte.Events.WindowEvents.WindowActivated += WindowActivated;
+        }
+
+        private void WindowActivated(EnvDTE.Window gotFocus, EnvDTE.Window _lostFocus)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            var document = gotFocus.Document;
+            if (document != null)
+            {
+                _docOpenTimes[document.FullName] = DateTime.Now;
+            }
+        }
+
         private List<string> GetRecentFiles()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            List<string> recentFiles = new List<string>();
             foreach (Document doc in _dte.Documents)
             {
-                recentFiles.Add(doc.FullName);
+                _docOpenTimes[doc.FullName] = _docOpenTimes.ContainsKey(doc.FullName) ? _docOpenTimes[doc.FullName] : DateTime.MinValue;
             }
 
-            return recentFiles.Distinct().ToList();
+            List<string> recentFiles = _docOpenTimes.OrderByDescending(pair => pair.Value)
+                                                    .Select(pair => pair.Key).ToList();
+
+            return recentFiles;
         }
 
         private void ShowRecentFilesDropdown(List<string> recentFiles)
