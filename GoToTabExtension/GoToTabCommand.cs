@@ -155,22 +155,35 @@ namespace GoToTabExtension
                 }
             };
 
+            void openSelectedFile()
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                if (listBox.SelectedItem is string selectedDisplayText)
+                {
+                    var selectedFile = fileDisplayData.FirstOrDefault(item =>
+                        $"{item.FileName} ({item.ProjectName})" == selectedDisplayText);
+
+                    if (selectedFile != null)
+                    {
+                        _dte.ItemOperations.OpenFile(selectedFile.FullPath);
+                    }
+                }
+                dialog.Close();
+            }
+
             listBox.KeyDown += (sender, e) =>
             {
                 if (e.Key == Key.Enter)
                 {
-                    ThreadHelper.ThrowIfNotOnUIThread();
-                    if (listBox.SelectedItem is string selectedDisplayText)
-                    {
-                        var selectedFile = fileDisplayData.FirstOrDefault(item =>
-                            $"{item.FileName} ({item.ProjectName})" == selectedDisplayText);
+                    openSelectedFile();
+                }
+            };
 
-                        if (selectedFile != null)
-                        {
-                            _dte.ItemOperations.OpenFile(selectedFile.FullPath);
-                        }
-                    }
-                    dialog.Close();
+            listBox.MouseDoubleClick += (sender, e) =>
+            {
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    openSelectedFile();
                 }
             };
 
