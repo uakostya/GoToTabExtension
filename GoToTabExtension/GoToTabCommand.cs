@@ -55,6 +55,7 @@ namespace GoToTabExtension
 
         private void TrackWindowEvents()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             _dte.Events.WindowEvents.WindowActivated += WindowActivated;
         }
 
@@ -73,13 +74,18 @@ namespace GoToTabExtension
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            string activeDocumentFullName = _dte.ActiveDocument?.FullName;
+
             foreach (Document doc in _dte.Documents)
             {
                 _docOpenTimes[doc.FullName] = _docOpenTimes.ContainsKey(doc.FullName) ? _docOpenTimes[doc.FullName] : DateTime.MinValue;
             }
 
-            List<string> recentFiles = _docOpenTimes.OrderByDescending(pair => pair.Value)
-                                                    .Select(pair => pair.Key).ToList();
+            List<string> recentFiles = _docOpenTimes
+                .Where(pair => pair.Key != activeDocumentFullName)
+                .OrderByDescending(pair => pair.Value)
+                .Select(pair => pair.Key)
+                .ToList();
 
             return recentFiles;
         }
