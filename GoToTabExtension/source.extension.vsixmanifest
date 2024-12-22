@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="GoToTabExtension.17265ad0-7cc8-4cae-9720-a9876e183752" Version="0.0.5" Language="en-US" Publisher="Kostya Pihalo" />
+        <Identity Id="GoToTabExtension.17265ad0-7cc8-4cae-9720-a9876e183752" Version="0.0.6" Language="en-US" Publisher="Kostya Pihalo" />
         <DisplayName>Go To Tab Extension</DisplayName>
         <Description xml:space="preserve">Enables navigation to tabs by name.</Description>
     </Metadata>
