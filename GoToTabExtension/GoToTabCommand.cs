@@ -49,7 +49,7 @@ namespace GoToTabExtension
         private void Execute(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            List<string> recentFiles = GetRecentFiles();
+            List<string> recentFiles = GetRecentTabs();
             ShowRecentFilesDropdown(recentFiles);
         }
 
@@ -70,24 +70,34 @@ namespace GoToTabExtension
             }
         }
 
-        private List<string> GetRecentFiles()
+        private struct TabInfo
+        {
+            public string FullName { get; set; }
+            public DateTime LastOpenTime { get; set; }
+        }
+
+        private List<string> GetRecentTabs()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             string activeDocumentFullName = _dte.ActiveDocument?.FullName;
 
+            List<TabInfo> recentTabs = new List<TabInfo>();
+
             foreach (Document doc in _dte.Documents)
             {
-                _docOpenTimes[doc.FullName] = _docOpenTimes.ContainsKey(doc.FullName) ? _docOpenTimes[doc.FullName] : DateTime.MinValue;
+                recentTabs.Add(new TabInfo
+                {
+                    FullName = doc.FullName,
+                    LastOpenTime = _docOpenTimes.ContainsKey(doc.FullName) ? _docOpenTimes[doc.FullName] : DateTime.MinValue
+                });
             }
 
-            List<string> recentFiles = _docOpenTimes
-                .Where(pair => pair.Key != activeDocumentFullName)
-                .OrderByDescending(pair => pair.Value)
-                .Select(pair => pair.Key)
+            return recentTabs
+                .Where(pair => pair.FullName != activeDocumentFullName)
+                .OrderByDescending(pair => pair.LastOpenTime)
+                .Select(pair => pair.FullName)
                 .ToList();
-
-            return recentFiles;
         }
 
         private void ShowRecentFilesDropdown(List<string> recentFiles)
