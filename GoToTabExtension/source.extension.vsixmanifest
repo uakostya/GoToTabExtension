@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="GoToTabExtension.17265ad0-7cc8-4cae-9720-a9876e183752" Version="1.0.7" Language="en-US" Publisher="Kostya Pihalo" />
+        <Identity Id="GoToTabExtension.17265ad0-7cc8-4cae-9720-a9876e183752" Version="1.0.8" Language="en-US" Publisher="uakostya" />
         <DisplayName>Go To Tab Extension</DisplayName>
         <Description xml:space="preserve">Enables navigation to tabs by name.</Description>
+        <MoreInfo>https://github.com/uakostya/GoToTabExtension</MoreInfo>
+        <Tags>navigation, tabs</Tags>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
